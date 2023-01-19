@@ -1,0 +1,191 @@
+Assignment Questions:
+
+2.    Combine the first name, last name, middle name into one tag full name and remove them.
+
+session.input.readAsJSON(function (error, json) {
+
+   var a = json.customers.customer;
+   for (var i = 0; i < a.length; i++) {
+
+      var copy = Object.assign({});
+
+      var fn = a[i].firstName;
+      var mn = a[i].middleName;
+      var ln = a[i].lastName;
+
+      var con = fn.concat(" ", mn, " ", ln);
+
+      var newname = a[i].fullName = con;
+
+      copy.fullName = a[i].fullName;
+      copy.email = a[i].email;
+      copy.phoneNumber = a[i].phoneNumber;
+      copy.address = a[i].address;
+
+      a[i] = copy;
+
+
+   }
+
+   session.output.write(json);
+
+});
+
+3.    Add unique attribute customer Id to each of the customer.
+
+session.input.readAsJSON(function (error, json) {
+   var a = json.customers.customer;
+
+   for (var i = 0; i < a.length; i++) {
+      var copy = Object.assign({});
+      copy.id = 101 + i;
+      copy.firstName = a[i].firstName;
+      copy.lastName = a[i].lastName;
+      copy.middleName = a[i].middleName;
+      copy.email = a[i].email;
+      copy.phoneNumber = a[i].phoneNumber;
+      copy.address = a[i].address;
+
+      a[i] = copy;
+
+   }
+   session.output.write(json);
+});
+
+4.    Add the Field SSN Number for each customer.
+
+session.input.readAsJSON(function (error, json) {
+   var a = json.customers.customer;
+
+   for (var i = 0; i < a.length; i++) {
+      var copy = Object.assign({});
+      copy.id = 101 + i;
+      copy.firstName = a[i].firstName;
+      copy.lastName = a[i].lastName;
+      copy.middleName =a[i].middleName;
+      copy.email = a[i].email;
+      copy.phoneNumber = a[i].phoneNumber;
+      copy.ssn = 101456123 + i;
+      copy.address = a[i].address;
+
+      a[i] = copy;
+
+   }
+   session.output.write(json);
+});
+
+5.    Do the following validations for the payload.
+
+a.    Phone Number Length should be 10 digits
+b.    FirstName cannot be empty
+c.    Address should always contain zip code
+d.    SSN Number should not be empty.
+
+session.input.readAsJSON(function (error, json) {
+
+   error = {
+      "Fault": {
+         "faultcode": 500,
+         "faultstring": "Internal Server Error",
+         "detail": {
+            "ErrorInfo": {
+               "errorMessageType": "Fatal",
+               "errorCode": 7000,
+               "errorMessageText": "XML Failed in Processing",
+               "errorState": "Validation Error"
+            }
+         }
+      }
+   }
+
+   var a = json.customers.customer;
+   var res = "";
+
+   for (var i = 0; i < a.length; i++) {
+
+      var ssndata = a[i].ssn;
+      var phn = a[i].phoneNumber.toString().length;
+      var fn = a[i].firstName.length;
+      var pc = a[i].address.postalCode.toString().length;
+
+      if (ssndata == null || fn == 0 || phn != 10 || pc != 5) {
+         res = "false";
+         break;
+      }
+   }
+
+   if (res == "false") {
+      session.output.write(error);
+
+   } else {
+      session.output.write(json);
+   }
+
+});
+
+6.    Merge the customer details with same SSN number.
+
+session.input.readAsJSON(function (error, json) {
+   var a = json.customers.customer;
+   for (let i = 0; i < a.length; i++) {
+      for (let j = i + 1; j < a.length; j++) {
+         if ((a[i].ssn) == (a[j].ssn)) {
+
+            if ((a[i].firstName) == (a[j].firstName)) {
+               a[i].firstName = a[j].firstName;
+            }
+            delete a[j].firstName;
+
+            if ((a[i].lastName) == (a[j].lastName)) {
+               a[i].lastName = a[j].lastName;
+            }
+            delete a[j].lastName;
+
+            if ((a[i].middleName) == (a[j].middleName)) {
+               a[i].middleName = a[j].middleName;
+            }
+            delete a[j].middleName;
+
+            if ((a[i].email) != (a[j].email)) {
+               a[i].email2 = a[j].email;
+            }
+            delete a[j].email;
+
+            if ((a[i].phoneNumber) != (a[j].phoneNumber)) {
+               a[i].phoneNumber2 = a[j].phoneNumber;
+            }
+
+            delete a[j].phoneNumber;
+
+            let city1 = a[i].address.city;
+            let city2 = a[j].address.city;
+            let state1 = a[i].address.state;
+            let state2 = a[j].address.state;
+            let a1 = a[i].address.addressLines;
+            let a2 = a[j].address.addressLines;
+            let p1 = a[i].address.postalCode;
+            let p2 = a[j].address.postalCode;
+
+            if (city1 != city2 || state1 != state2 || a1 != a2 || p1 != p2) {
+               a[i].address2 = a[j].address;
+            }
+            delete a[j].address;
+            delete a[j].ssn;
+
+         }
+
+
+      }
+   }
+
+var arrnew = json.customers.customer; 
+
+var n= [];
+
+   var n = arrnew.filter(value => JSON.stringify(value) !== '{}');
+json.customers.customer = n;
+   session.output.write(json);
+
+});
+
+ 
